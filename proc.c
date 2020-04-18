@@ -6,7 +6,6 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
-
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -231,6 +230,7 @@ exit(int status)
   struct proc *p;
   int fd;
 
+  curproc->exitStatus=status;
   if(curproc == initproc)
     panic("init exiting");
 
@@ -251,6 +251,16 @@ exit(int status)
 
   // Parent might be sleeping in wait(&status).
   wakeup1(curproc->parent);
+
+/*  if(curproc->wpIndex != 0){
+   for(int i = 0 ; i < curproc->wpIndex; i++){
+    for(p=ptable.proc; p < &ptable.proc[NPROC];p++){
+     if(p->pid==curproc->wpOrigin[i])
+	wakeup1(p);
+    }
+   }
+  }
+*/
 
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -295,7 +305,8 @@ wait(int *status)
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
-        release(&ptable.lock);
+        if(status){*status=p->exitStatus;}
+	release(&ptable.lock);
         return pid;
       }
     }
@@ -303,6 +314,7 @@ wait(int *status)
     // No point waiting if we don't have any children.
     if(!havekids || curproc->killed){
       release(&ptable.lock);
+      if(status){*status=-1;}
       return -1;
     }
 
@@ -323,11 +335,13 @@ int waitpid(int pid, int *status, int options)
   for(;;){
 	found = 0;
 	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+	  if(p->pid != pid){
+	  continue;}
 	  found = 1;
 	  if(p->state == ZOMBIE){
-	     if(p->exitStatus != 0){
-	       *status = p->exitStatus;	
-	     }
+	      if(p->exitStatus != 0){
+             	*status = p->exitStatus;
+ 	      }
 	     pid = p->pid;
 	     kfree(p->kstack);
 	     p->kstack = 0;
@@ -340,17 +354,17 @@ int waitpid(int pid, int *status, int options)
 	     release(&ptable.lock);
 	     return pid;
 	  }
-  	    else{
-	     p->wpIndex++;
-	     p->wpOrigin[p->wpIndex] = curproc->pid;
-            }
+	  else{
+             p->wpOrigin[p->wpIndex] = curproc->pid;
+             p->wpIndex++;
 	  }
+	}
   }
   // No need to wait if there are children process
   if(!found || curproc->killed)
   {
 	release(&ptable.lock);
-	return -1;	
+        return -1;	
   }
  
   // go to sleep until children process ended. 
