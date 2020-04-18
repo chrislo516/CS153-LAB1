@@ -16,7 +16,7 @@
 int
 main(int argc, char *argv[])
 {
-  int fd, i;
+  int fd, i, status;
   char path[] = "stressfs0";
   char data[512];
 

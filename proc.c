@@ -311,6 +311,54 @@ wait(int *status)
   }
 }
 
+
+//Waitpid
+int waitpid(int pid, int *status, int options)
+{
+  struct proc *p;
+  int found;
+  struct proc *curproc = myproc();
+
+  acquire(&ptable.lock);
+  for(;;){
+	found = 0;
+	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+	  found = 1;
+	  if(p->state == ZOMBIE){
+	     if(p->exitStatus != 0){
+	       *status = p->exitStatus;	
+	     }
+	     pid = p->pid;
+	     kfree(p->kstack);
+	     p->kstack = 0;
+             freevm(p->pgdir);
+	     p->pid = 0;
+ 	     p->parent = 0;
+	     p->killed = 0;
+     	     p->name[0] = 0;
+	     p->state = UNUSED;
+	     release(&ptable.lock);
+	     return pid;
+	  }
+  	    else{
+	     p->wpIndex++;
+	     p->wpOrigin[p->wpIndex] = curproc->pid;
+            }
+	  }
+  }
+  // No need to wait if there are children process
+  if(!found || curproc->killed)
+  {
+	release(&ptable.lock);
+	return -1;	
+  }
+ 
+  // go to sleep until children process ended. 
+  sleep(curproc, &ptable.lock);
+
+}
+
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.

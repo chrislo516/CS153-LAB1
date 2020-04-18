@@ -11,6 +11,7 @@ int
 main(void)
 {
   int pid, wpid;
+  int status;
 
   if(open("console", O_RDWR) < 0){
     mknod("console", 1, 1);

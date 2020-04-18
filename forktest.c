@@ -17,6 +17,7 @@ void
 forktest(void)
 {
   int n, pid;
+  int status;
 
   printf(1, "fork test\n");
 

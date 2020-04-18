@@ -42,7 +42,7 @@ iputtest(void)
 void
 exitiputtest(void)
 {
-  int pid;
+  int pid, status;
 
   printf(stdout, "exitiput test\n");
 
@@ -84,7 +84,7 @@ exitiputtest(void)
 void
 openiputtest(void)
 {
-  int pid;
+  int pid, status;
 
   printf(stdout, "openiput test\n");
   if(mkdir("oidir") < 0){
@@ -305,7 +305,7 @@ exectest(void)
 void
 pipe1(void)
 {
-  int fds[2], pid;
+  int fds[2], pid, status;
   int seq, i, n, cc, total;
 
   if(pipe(fds) != 0){
@@ -359,7 +359,7 @@ void
 preempt(void)
 {
   int pid1, pid2, pid3;
-  int pfds[2];
+  int pfds[2], status;
 
   printf(1, "preempt: ");
   pid1 = fork();
@@ -404,7 +404,7 @@ preempt(void)
 void
 exitwait(void)
 {
-  int i, pid;
+  int i, pid, status;
 
   for(i = 0; i < 100; i++){
     pid = fork();
@@ -428,7 +428,7 @@ void
 mem(void)
 {
   void *m1, *m2;
-  int pid, ppid;
+  int pid, ppid, status;
 
   printf(1, "mem test\n");
   ppid = getpid();
@@ -464,7 +464,7 @@ mem(void)
 void
 sharedfd(void)
 {
-  int fd, pid, i, n, nc, np;
+  int fd, pid, i, n, nc, np, status;
   char buf[10];
 
   printf(1, "sharedfd test\n");
@@ -517,7 +517,7 @@ sharedfd(void)
 void
 fourfiles(void)
 {
-  int fd, pid, i, j, n, total, pi;
+  int fd, pid, i, j, n, total, pi, status;
   char *names[] = { "f0", "f1", "f2", "f3" };
   char *fname;
 
@@ -584,7 +584,7 @@ void
 createdelete(void)
 {
   enum { N = 20 };
-  int pid, i, fd, pi;
+  int pid, i, fd, pi, status;
   char name[32];
 
   printf(1, "createdelete test\n");
@@ -765,7 +765,7 @@ void
 concreate(void)
 {
   char file[3];
-  int i, pid, n, fd;
+  int i, pid, n, fd, status;
   char fa[40];
   struct {
     ushort inum;
@@ -857,7 +857,7 @@ concreate(void)
 void
 linkunlink()
 {
-  int pid, i;
+  int pid, i, status;
 
   printf(1, "linkunlink test\n");
 
@@ -1379,7 +1379,7 @@ iref(void)
 void
 forktest(void)
 {
-  int n, pid;
+  int n, pid, status;
 
   printf(1, "fork test\n");
 
@@ -1414,7 +1414,7 @@ forktest(void)
 void
 sbrktest(void)
 {
-  int fds[2], pid, pids[10], ppid;
+  int fds[2], pid, pids[10], ppid, status;
   char *a, *b, *c, *lastaddr, *oldbrk, *p, scratch;
   uint amt;
 
@@ -1562,7 +1562,7 @@ validateint(int *p)
 void
 validatetest(void)
 {
-  int hi, pid;
+  int hi, pid, status;
   uint p;
 
   printf(stdout, "validate test\n");
@@ -1612,7 +1612,7 @@ bsstest(void)
 void
 bigargtest(void)
 {
-  int pid, fd;
+  int pid, fd, status;
 
   unlink("bigarg-ok");
   pid = fork();
@@ -1703,7 +1703,7 @@ uio()
 
   ushort port = 0;
   uchar val = 0;
-  int pid;
+  int pid, status;
 
   printf(1, "uio test\n");
   pid = fork();
@@ -1782,7 +1782,7 @@ main(int argc, char *argv[])
   mem();
   pipe1();
   preempt();
-  exitwait(&status);
+  exitwait();
 
   rmdot();
   fourteen();
