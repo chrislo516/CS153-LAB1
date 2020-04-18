@@ -252,16 +252,6 @@ exit(int status)
   // Parent might be sleeping in wait(&status).
   wakeup1(curproc->parent);
 
-/*  if(curproc->wpIndex != 0){
-   for(int i = 0 ; i < curproc->wpIndex; i++){
-    for(p=ptable.proc; p < &ptable.proc[NPROC];p++){
-     if(p->pid==curproc->wpOrigin[i])
-	wakeup1(p);
-    }
-   }
-  }
-*/
-
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->parent == curproc){
