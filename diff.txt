@@ -1,0 +1,1288 @@
+Only in CS153-lab1/xv6/: aitpid
+Only in CS153-lab1/xv6/: a.out
+diff CS153-lab1/xv6/cat.c oriXV6/xv6/cat.c
+15c15
+<       exit(1);
+---
+>       exit();
+20c20
+<     exit(1);
+---
+>     exit();
+31c31
+<     exit(0);
+---
+>     exit();
+37c37
+<       exit(1);
+---
+>       exit();
+42c42
+<   exit(0);
+---
+>   exit();
+diff CS153-lab1/xv6/defs.h oriXV6/xv6/defs.h
+107c107
+< void            exit(int status); // passing status into exit func.
+---
+> void            exit(void);
+120c120
+< int             wait(int *status);
+---
+> int             wait(void);
+123c123
+< int 		waitpid(int pid, int *status, int options);
+---
+> 
+diff CS153-lab1/xv6/echo.c oriXV6/xv6/echo.c
+12c12
+<   exit(0);
+---
+>   exit();
+diff CS153-lab1/xv6/forktest.c oriXV6/xv6/forktest.c
+20d19
+<   int status;
+29c28
+<       exit(0);
+---
+>       exit();
+34c33
+<     exit(0);
+---
+>     exit();
+38c37
+<     if(wait(&status) < 0){
+---
+>     if(wait() < 0){
+40c39
+<       exit(0);
+---
+>       exit();
+44c43
+<   if(wait(&status) != -1){
+---
+>   if(wait() != -1){
+46c45
+<     exit(0);
+---
+>     exit();
+56c55
+<   exit(0);
+---
+>   exit();
+Common subdirectories: CS153-lab1/xv6/.git and oriXV6/xv6/.git
+diff CS153-lab1/xv6/grep.c oriXV6/xv6/grep.c
+46c46
+<     exit(0);
+---
+>     exit();
+52c52
+<     exit(0);
+---
+>     exit();
+58c58
+<       exit(1);
+---
+>       exit();
+63c63
+<   exit(0);
+---
+>   exit();
+diff CS153-lab1/xv6/init.c oriXV6/xv6/init.c
+14d13
+<   int status;
+28c27
+<       exit(0);
+---
+>       exit();
+33c32
+<       exit(0);
+---
+>       exit();
+35c34
+<     while((wpid=wait(&status)) >= 0 && wpid != pid)
+---
+>     while((wpid=wait()) >= 0 && wpid != pid)
+diff CS153-lab1/xv6/kill.c oriXV6/xv6/kill.c
+12c12
+<     exit(1); //Kill Syscall Failed
+---
+>     exit();
+16c16
+<   exit(0);  //Normal execution
+---
+>   exit();
+diff CS153-lab1/xv6/ln.c oriXV6/xv6/ln.c
+10c10
+<     exit(1); // Ln SYSCALL FAILED
+---
+>     exit();
+14c14
+<   exit(0); // NORMAL EXECUTION
+---
+>   exit();
+diff CS153-lab1/xv6/ls.c oriXV6/xv6/ls.c
+80c80
+<     exit(0); // NORMAL EXECUTION
+---
+>     exit();
+84c84
+<   exit(0); // NORMAL EXECUTION
+---
+>   exit();
+diff CS153-lab1/xv6/Makefile oriXV6/xv6/Makefile
+184d183
+< 	_waittest\
+252c251
+< 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c waittest.c\
+---
+> 	mkfs.c ulib.c user.h cat.c echo.c forktest.c grep.c kill.c\
+diff CS153-lab1/xv6/mkdir.c oriXV6/xv6/mkdir.c
+12c12
+<     exit(1); // MKDIR SYSCALL FAILED
+---
+>     exit();
+22c22
+<   exit(0); // NORMAL EXECUTION
+---
+>   exit();
+diff CS153-lab1/xv6/proc.c oriXV6/xv6/proc.c
+8a9
+> 
+225c226
+< // until its parent calls wait(&status) to find out it exited.
+---
+> // until its parent calls wait() to find out it exited.
+227c228
+< exit(int status)
+---
+> exit(void)
+233d233
+<   curproc->exitStatus=status;
+252c252
+<   // Parent might be sleeping in wait(&status).
+---
+>   // Parent might be sleeping in wait().
+273c273
+< wait(int *status)
+---
+> wait(void)
+298,299c298
+<         if(status){*status=p->exitStatus;}
+< 	release(&ptable.lock);
+---
+>         release(&ptable.lock);
+307d305
+<       if(status){*status=-1;}
+315,364d312
+< 
+< 
+< //Waitpid
+< int waitpid(int pid, int *status, int options)
+< {
+<   struct proc *p;
+<   int found;
+<   struct proc *curproc = myproc();
+< 
+<   acquire(&ptable.lock);
+<   for(;;){
+< 	found = 0;
+< 	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+< 	  if(p->pid != pid){
+< 	  continue;}
+< 	  found = 1;
+< 	  if(p->state == ZOMBIE){
+< 	      if(p->exitStatus != 0){
+<              	*status = p->exitStatus;
+<  	      }
+< 	     pid = p->pid;
+< 	     kfree(p->kstack);
+< 	     p->kstack = 0;
+<              freevm(p->pgdir);
+< 	     p->pid = 0;
+<  	     p->parent = 0;
+< 	     p->killed = 0;
+<      	     p->name[0] = 0;
+< 	     p->state = UNUSED;
+< 	     release(&ptable.lock);
+< 	     return pid;
+< 	  }
+< 	  else{
+<              p->wpOrigin[p->wpIndex] = curproc->pid;
+<              p->wpIndex++;
+< 	  }
+< 	}
+<   }
+<   // No need to wait if there are children process
+<   if(!found || curproc->killed)
+<   {
+< 	release(&ptable.lock);
+<         return -1;	
+<   }
+<  
+<   // go to sleep until children process ended. 
+<   sleep(curproc, &ptable.lock);
+< 
+< }
+< 
+diff CS153-lab1/xv6/proc.h oriXV6/xv6/proc.h
+43c43
+<   volatile int pid;                     // Process ID
+---
+>   int pid;                     // Process ID
+52,54d51
+<   int exitStatus;	       // exit status
+<   int wpOrigin[100];           // waitpid parent
+<   int wpIndex;		       // waitpid count
+Only in CS153-lab1/xv6/: qemu
+Only in CS153-lab1/xv6/: README.md
+diff CS153-lab1/xv6/rm.c oriXV6/xv6/rm.c
+12c12
+<     exit(1); // RM SYSYCALL FAILED
+---
+>     exit();
+22c22
+<   exit(0); // NORMAL EXECUTION
+---
+>   exit();
+diff CS153-lab1/xv6/sh.c oriXV6/xv6/sh.c
+60c60
+<   int p[2], status;
+---
+>   int p[2];
+68c68
+<     exit(0);
+---
+>     exit();
+77c77
+<       exit(0);
+---
+>       exit();
+87c87
+<       exit(0);
+---
+>       exit();
+96c96
+<     wait(&status);
+---
+>     wait();
+120,121c120,121
+<     wait(&status);
+<     wait(&status);
+---
+>     wait();
+>     wait();
+130c130
+<   exit(0);
+---
+>   exit();
+148c148
+<   int fd, status;
+---
+>   int fd;
+169c169
+<     wait(&status);
+---
+>     wait();
+171c171
+<   exit(0);
+---
+>   exit();
+178c178
+<   exit(0);
+---
+>   exit();
+diff CS153-lab1/xv6/stressfs.c oriXV6/xv6/stressfs.c
+19c19
+<   int fd, i, status;
+---
+>   int fd, i;
+46c46
+<   wait(&status);
+---
+>   wait();
+48c48
+<   exit(0);
+---
+>   exit();
+diff CS153-lab1/xv6/syscall.c oriXV6/xv6/syscall.c
+106d105
+< extern int sys_waitpid(void);
+130d128
+< [SYS_waitpid] sys_waitpid,
+diff CS153-lab1/xv6/syscall.h oriXV6/xv6/syscall.h
+23d22
+< #define SYS_waitpid 22
+diff CS153-lab1/xv6/sysproc.c oriXV6/xv6/sysproc.c
+17c17
+< sys_exit()
+---
+> sys_exit(void)
+19,21c19
+<   int status;
+<   argint(0,&status);
+<   exit(status);
+---
+>   exit();
+28,46c26
+<   int* status;
+<   argptr(0,(char **) &status, sizeof(int*));
+<   return wait(status);
+< }
+< 
+< int
+< sys_waitpid()         // part D added sys_waitpid
+< {
+<   int pid;
+<   int *status;
+<   int options;
+<    
+<   argint(0,&pid);
+<   argptr(0,(char**) &status, sizeof(int*));
+<   argint(0,&options);
+<   
+<   return waitpid(pid,status,options);
+<   return 0;
+<   
+---
+>   return wait();
+Only in CS153-lab1/xv6/: test
+diff CS153-lab1/xv6/trap.c oriXV6/xv6/trap.c
+41c41
+<       exit(1);
+---
+>       exit();
+45c45
+<       exit(0);
+---
+>       exit();
+101c101
+<     exit(0);
+---
+>     exit();
+111c111
+<     exit(0);
+---
+>     exit();
+diff CS153-lab1/xv6/user.h oriXV6/xv6/user.h
+6,8c6,7
+< int exit(int status) __attribute__((noreturn));
+< int wait(int *);
+< int waitpid(int pid, int *status, int options); // part D
+---
+> int exit(void) __attribute__((noreturn));
+> int wait(void);
+diff CS153-lab1/xv6/usertests.c oriXV6/xv6/usertests.c
+24c24
+<     exit(0);
+---
+>     exit();
+28c28
+<     exit(0);
+---
+>     exit();
+32c32
+<     exit(0);
+---
+>     exit();
+36c36
+<     exit(0);
+---
+>     exit();
+41c41
+< // does exit(0) call iput(p->cwd) in a transaction?
+---
+> // does exit() call iput(p->cwd) in a transaction?
+45c45
+<   int pid, status;
+---
+>   int pid;
+52c52
+<     exit(0);
+---
+>     exit();
+57c57
+<       exit(0);
+---
+>       exit();
+61c61
+<       exit(0);
+---
+>       exit();
+65c65
+<       exit(0);
+---
+>       exit();
+67c67
+<     exit(0);
+---
+>     exit();
+69c69
+<   wait(&status);
+---
+>   wait();
+87c87
+<   int pid, status;
+---
+>   int pid;
+92c92
+<     exit(0);
+---
+>     exit();
+97c97
+<     exit(0);
+---
+>     exit();
+103c103
+<       exit(0);
+---
+>       exit();
+105c105
+<     exit(0);
+---
+>     exit();
+110c110
+<     exit(0);
+---
+>     exit();
+112c112
+<   wait(&status);
+---
+>   wait();
+127c127
+<     exit(0);
+---
+>     exit();
+133c133
+<     exit(0);
+---
+>     exit();
+150c150
+<     exit(0);
+---
+>     exit();
+155c155
+<       exit(0);
+---
+>       exit();
+159c159
+<       exit(0);
+---
+>       exit();
+169c169
+<     exit(0);
+---
+>     exit();
+176c176
+<     exit(0);
+---
+>     exit();
+182c182
+<     exit(0);
+---
+>     exit();
+197c197
+<     exit(0);
+---
+>     exit();
+204c204
+<       exit(0);
+---
+>       exit();
+213c213
+<     exit(0);
+---
+>     exit();
+222c222
+<         exit(0);
+---
+>         exit();
+227c227
+<       exit(0);
+---
+>       exit();
+232c232
+<       exit(0);
+---
+>       exit();
+239c239
+<     exit(0);
+---
+>     exit();
+273c273
+<     exit(0);
+---
+>     exit();
+278c278
+<     exit(0);
+---
+>     exit();
+283c283
+<     exit(0);
+---
+>     exit();
+288c288
+<     exit(0);
+---
+>     exit();
+299c299
+<     exit(0);
+---
+>     exit();
+308c308
+<   int fds[2], pid, status;
+---
+>   int fds[2], pid;
+313c313
+<     exit(0);
+---
+>     exit();
+324c324
+<         exit(0);
+---
+>         exit();
+327c327
+<     exit(0);
+---
+>     exit();
+346c346
+<       exit(0);
+---
+>       exit();
+349c349
+<     wait(&status);
+---
+>     wait();
+352c352
+<     exit(0);
+---
+>     exit();
+362c362
+<   int pfds[2], status;
+---
+>   int pfds[2];
+397,399c397,399
+<   wait(&status);
+<   wait(&status);
+<   wait(&status);
+---
+>   wait();
+>   wait();
+>   wait();
+407c407
+<   int i, pid, status;
+---
+>   int i, pid;
+416c416
+<       if(wait(&status) != pid){
+---
+>       if(wait() != pid){
+421c421
+<       exit(0);
+---
+>       exit();
+431c431
+<   int pid, ppid, status;
+---
+>   int pid, ppid;
+450c450
+<       exit(0);
+---
+>       exit();
+454c454
+<     exit(0);
+---
+>     exit();
+456c456
+<     wait(&status);
+---
+>     wait();
+467c467
+<   int fd, pid, i, n, nc, np, status;
+---
+>   int fd, pid, i, n, nc, np;
+487c487
+<     exit(0);
+---
+>     exit();
+489c489
+<     wait(&status);
+---
+>     wait();
+511c511
+<     exit(0);
+---
+>     exit();
+520c520
+<   int fd, pid, i, j, n, total, pi, status;
+---
+>   int fd, pid, i, j, n, total, pi;
+533c533
+<       exit(0);
+---
+>       exit();
+540c540
+<         exit(0);
+---
+>         exit();
+547c547
+<           exit(0);
+---
+>           exit();
+550c550
+<       exit(0);
+---
+>       exit();
+555c555
+<     wait(&status);
+---
+>     wait();
+566c566
+<           exit(0);
+---
+>           exit();
+574c574
+<       exit(0);
+---
+>       exit();
+587c587
+<   int pid, i, fd, pi, status;
+---
+>   int pid, i, fd, pi;
+596c596
+<       exit(0);
+---
+>       exit();
+607c607
+<           exit(0);
+---
+>           exit();
+614c614
+<             exit(0);
+---
+>             exit();
+618c618
+<       exit(0);
+---
+>       exit();
+623c623
+<     wait(&status);
+---
+>     wait();
+634c634
+<         exit(0);
+---
+>         exit();
+637c637
+<         exit(0);
+---
+>         exit();
+665c665
+<     exit(0);
+---
+>     exit();
+673c673
+<     exit(0);
+---
+>     exit();
+677c677
+<     exit(0);
+---
+>     exit();
+686c686
+<     exit(0);
+---
+>     exit();
+690c690
+<     exit(0);
+---
+>     exit();
+694c694
+<     exit(0);
+---
+>     exit();
+714c714
+<     exit(0);
+---
+>     exit();
+718c718
+<     exit(0);
+---
+>     exit();
+724c724
+<     exit(0);
+---
+>     exit();
+730c730
+<     exit(0);
+---
+>     exit();
+736c736
+<     exit(0);
+---
+>     exit();
+740c740
+<     exit(0);
+---
+>     exit();
+746c746
+<     exit(0);
+---
+>     exit();
+752c752
+<     exit(0);
+---
+>     exit();
+757c757
+<     exit(0);
+---
+>     exit();
+768c768
+<   int i, pid, n, fd, status;
+---
+>   int i, pid, n, fd;
+790c790
+<         exit(0);
+---
+>         exit();
+795c795
+<       exit(0);
+---
+>       exit();
+797c797
+<       wait(&status);
+---
+>       wait();
+810c810
+<         exit(0);
+---
+>         exit();
+814c814
+<         exit(0);
+---
+>         exit();
+824c824
+<     exit(0);
+---
+>     exit();
+832c832
+<       exit(0);
+---
+>       exit();
+847c847
+<       exit(0);
+---
+>       exit();
+849c849
+<       wait(&status);
+---
+>       wait();
+860c860
+<   int pid, i, status;
+---
+>   int pid, i;
+868c868
+<     exit(0);
+---
+>     exit();
+884c884
+<     wait(&status);
+---
+>     wait();
+886c886
+<     exit(0);
+---
+>     exit();
+904c904
+<     exit(0);
+---
+>     exit();
+915c915
+<       exit(0);
+---
+>       exit();
+927c927
+<       exit(0);
+---
+>       exit();
+944c944
+<     exit(0);
+---
+>     exit();
+950c950
+<     exit(0);
+---
+>     exit();
+957c957
+<     exit(0);
+---
+>     exit();
+962c962
+<     exit(0);
+---
+>     exit();
+968c968
+<     exit(0);
+---
+>     exit();
+976c976
+<     exit(0);
+---
+>     exit();
+981c981
+<     exit(0);
+---
+>     exit();
+987c987
+<     exit(0);
+---
+>     exit();
+992c992
+<     exit(0);
+---
+>     exit();
+996c996
+<     exit(0);
+---
+>     exit();
+1001c1001
+<     exit(0);
+---
+>     exit();
+1005c1005
+<     exit(0);
+---
+>     exit();
+1009c1009
+<     exit(0);
+---
+>     exit();
+1013c1013
+<     exit(0);
+---
+>     exit();
+1019c1019
+<     exit(0);
+---
+>     exit();
+1023c1023
+<     exit(0);
+---
+>     exit();
+1029c1029
+<     exit(0);
+---
+>     exit();
+1034c1034
+<     exit(0);
+---
+>     exit();
+1038c1038
+<     exit(0);
+---
+>     exit();
+1042c1042
+<     exit(0);
+---
+>     exit();
+1046c1046
+<     exit(0);
+---
+>     exit();
+1050c1050
+<     exit(0);
+---
+>     exit();
+1054c1054
+<     exit(0);
+---
+>     exit();
+1058c1058
+<     exit(0);
+---
+>     exit();
+1062c1062
+<     exit(0);
+---
+>     exit();
+1066c1066
+<     exit(0);
+---
+>     exit();
+1070c1070
+<     exit(0);
+---
+>     exit();
+1074c1074
+<     exit(0);
+---
+>     exit();
+1078c1078
+<     exit(0);
+---
+>     exit();
+1082c1082
+<     exit(0);
+---
+>     exit();
+1086c1086
+<     exit(0);
+---
+>     exit();
+1090c1090
+<     exit(0);
+---
+>     exit();
+1095c1095
+<     exit(0);
+---
+>     exit();
+1099c1099
+<     exit(0);
+---
+>     exit();
+1103c1103
+<     exit(0);
+---
+>     exit();
+1107c1107
+<     exit(0);
+---
+>     exit();
+1111c1111
+<     exit(0);
+---
+>     exit();
+1130c1130
+<       exit(0);
+---
+>       exit();
+1137c1137
+<         exit(0);
+---
+>         exit();
+1158c1158
+<     exit(0);
+---
+>     exit();
+1164c1164
+<       exit(0);
+---
+>       exit();
+1172c1172
+<     exit(0);
+---
+>     exit();
+1179c1179
+<       exit(0);
+---
+>       exit();
+1185c1185
+<       exit(0);
+---
+>       exit();
+1189c1189
+<       exit(0);
+---
+>       exit();
+1196c1196
+<     exit(0);
+---
+>     exit();
+1213c1213
+<     exit(0);
+---
+>     exit();
+1217c1217
+<     exit(0);
+---
+>     exit();
+1222c1222
+<     exit(0);
+---
+>     exit();
+1228c1228
+<     exit(0);
+---
+>     exit();
+1234c1234
+<     exit(0);
+---
+>     exit();
+1238c1238
+<     exit(0);
+---
+>     exit();
+1250c1250
+<     exit(0);
+---
+>     exit();
+1254c1254
+<     exit(0);
+---
+>     exit();
+1258c1258
+<     exit(0);
+---
+>     exit();
+1262c1262
+<     exit(0);
+---
+>     exit();
+1266c1266
+<     exit(0);
+---
+>     exit();
+1270c1270
+<     exit(0);
+---
+>     exit();
+1274c1274
+<     exit(0);
+---
+>     exit();
+1278c1278
+<     exit(0);
+---
+>     exit();
+1293c1293
+<     exit(0);
+---
+>     exit();
+1298c1298
+<     exit(0);
+---
+>     exit();
+1303c1303
+<     exit(0);
+---
+>     exit();
+1308c1308
+<     exit(0);
+---
+>     exit();
+1312c1312
+<     exit(0);
+---
+>     exit();
+1316c1316
+<     exit(0);
+---
+>     exit();
+1320c1320
+<     exit(0);
+---
+>     exit();
+1324c1324
+<     exit(0);
+---
+>     exit();
+1330c1330
+<     exit(0);
+---
+>     exit();
+1335c1335
+<     exit(0);
+---
+>     exit();
+1354c1354
+<       exit(0);
+---
+>       exit();
+1358c1358
+<       exit(0);
+---
+>       exit();
+1382c1382
+<   int n, pid, status;
+---
+>   int n, pid;
+1391c1391
+<       exit(0);
+---
+>       exit();
+1396c1396
+<     exit(0);
+---
+>     exit();
+1400c1400
+<     if(wait(&status) < 0){
+---
+>     if(wait() < 0){
+1402c1402
+<       exit(0);
+---
+>       exit();
+1406c1406
+<   if(wait(&status) != -1){
+---
+>   if(wait() != -1){
+1408c1408
+<     exit(0);
+---
+>     exit();
+1417c1417
+<   int fds[2], pid, pids[10], ppid, status;
+---
+>   int fds[2], pid, pids[10], ppid;
+1431c1431
+<       exit(0);
+---
+>       exit();
+1439c1439
+<     exit(0);
+---
+>     exit();
+1445c1445
+<     exit(0);
+---
+>     exit();
+1448,1449c1448,1449
+<     exit(0);
+<   wait(&status);
+---
+>     exit();
+>   wait();
+1458c1458
+<     exit(0);
+---
+>     exit();
+1468c1468
+<     exit(0);
+---
+>     exit();
+1473c1473
+<     exit(0);
+---
+>     exit();
+1481c1481
+<     exit(0);
+---
+>     exit();
+1486c1486
+<     exit(0);
+---
+>     exit();
+1493c1493
+<     exit(0);
+---
+>     exit();
+1502c1502
+<       exit(0);
+---
+>       exit();
+1507c1507
+<       exit(0);
+---
+>       exit();
+1509c1509
+<     wait(&status);
+---
+>     wait();
+1516c1516
+<     exit(0);
+---
+>     exit();
+1536c1536
+<     wait(&status);
+---
+>     wait();
+1540c1540
+<     exit(0);
+---
+>     exit();
+1565c1565
+<   int hi, pid, status;
+---
+>   int hi, pid;
+1575c1575
+<       exit(0);
+---
+>       exit();
+1580c1580
+<     wait(&status);
+---
+>     wait();
+1585c1585
+<       exit(0);
+---
+>       exit();
+1603c1603
+<       exit(0);
+---
+>       exit();
+1615c1615
+<   int pid, fd, status;
+---
+>   int pid, fd;
+1630c1630
+<     exit(0);
+---
+>     exit();
+1633c1633
+<     exit(0);
+---
+>     exit();
+1635c1635
+<   wait(&status);
+---
+>   wait();
+1639c1639
+<     exit(0);
+---
+>     exit();
+1706c1706
+<   int pid, status;
+---
+>   int pid;
+1718c1718
+<     exit(0);
+---
+>     exit();
+1721c1721
+<     exit(0);
+---
+>     exit();
+1723c1723
+<   wait(&status);
+---
+>   wait();
+1733c1733
+<     exit(0);
+---
+>     exit();
+1755c1755
+<     exit(0);
+---
+>     exit();
+1802c1802
+<   exit(0);
+---
+>   exit();
+diff CS153-lab1/xv6/usys.S oriXV6/xv6/usys.S
+32d31
+< SYSCALL(waitpid)
+Only in CS153-lab1/xv6/: waittest.c
+diff CS153-lab1/xv6/wc.c oriXV6/xv6/wc.c
+30c30
+<     exit(1);
+---
+>     exit();
+42c42
+<     exit(0);
+---
+>     exit();
+48c48
+<       exit(1);
+---
+>       exit();
+53c53
+<   exit(0);
+---
+>   exit();
+Only in CS153-lab1/xv6/: xv6
+diff CS153-lab1/xv6/zombie.c oriXV6/xv6/zombie.c
+13c13
+<   exit(0);
+---
+>   exit();
